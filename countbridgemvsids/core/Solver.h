@@ -137,7 +137,8 @@ public:
     //
     uint64_t solves, starts, decisions, bridge_decisions, rnd_decisions, propagations, conflicts, backjumps;
     uint64_t dec_vars, clauses_literals, learnts_literals, max_literals, tot_literals;
-    uint64_t learnt_clause_vars, bridge_learnt_clause_vars, cag_vars, bridge_cag_vars;
+    uint64_t conflicting_clause_vars, bridge_conflicting_clause_vars, learnt_clause_vars, bridge_learnt_clause_vars, cag_vars, bridge_cag_vars;
+    bool mvsids;
 
 protected:
 

@@ -43,6 +43,7 @@ static IntOption     opt_restart_first     (_cat, "rfirst",      "The base resta
 static DoubleOption  opt_restart_inc       (_cat, "rinc",        "Restart interval increase factor", 2, DoubleRange(1, false, HUGE_VAL, false));
 static DoubleOption  opt_garbage_frac      (_cat, "gc-frac",     "The fraction of wasted memory allowed before a garbage collection is triggered",  0.20, DoubleRange(0, false, HUGE_VAL, false));
 static StringOption  opt_cmty_file         (_cat, "cmty-file",   "The community file.");
+static BoolOption    opt_mvsids            (_cat, "mvsids",      "Use mvsids.", true);
 
 //=================================================================================================
 // Constructor/Destructor:
@@ -80,10 +81,13 @@ Solver::Solver() :
   , solves(0), starts(0), decisions(0), bridge_decisions(0), rnd_decisions(0), propagations(0), conflicts(0), backjumps(0)
   , dec_vars(0), clauses_literals(0), learnts_literals(0), max_literals(0), tot_literals(0)
 
+  , conflicting_clause_vars(0)
+  , bridge_conflicting_clause_vars(0)
   , learnt_clause_vars (0)
   , bridge_learnt_clause_vars(0)
   , cag_vars           (0)
   , bridge_cag_vars    (0)
+  , mvsids             (opt_mvsids)
 
   , ok                 (true)
   , cla_inc            (1)
@@ -277,6 +281,15 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt, int& out_btlevel)
     out_learnt.push();      // (leave room for the asserting literal)
     int index   = trail.size() - 1;
 
+    Clause& conflicting = ca[confl];
+    for (int i = 0; i < conflicting.size(); i++) {
+        Var v = var(conflicting[i]);
+        if (bridges[v]) {
+            bridge_conflicting_clause_vars++;
+        }
+        conflicting_clause_vars++;
+    }
+
     do{
         assert(confl != CRef_Undef); // (otherwise should be UIP)
         Clause& c = ca[confl];
@@ -288,7 +301,8 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt, int& out_btlevel)
             Lit q = c[j];
 
             if (!seen[var(q)] && level(var(q)) > 0){
-                varBumpActivity(var(q));
+                if (mvsids)
+                    varBumpActivity(var(q));
                 if (bridges[var(q)]) {
                     bridge_cag_vars++;
                 }
@@ -370,6 +384,12 @@ void Solver::analyze(CRef confl, vec<Lit>& out_learnt, int& out_btlevel)
         learnt_clause_vars++;
     }
 
+    if (!mvsids) {
+        for (int i = 0; i < out_learnt.size(); i++) {
+            varBumpActivity(var(out_learnt[i]));
+        }
+    }
+    
     for (int j = 0; j < analyze_toclear.size(); j++) seen[var(analyze_toclear[j])] = 0;    // ('seen[]' is now cleared)
 }
 

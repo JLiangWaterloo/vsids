@@ -43,6 +43,8 @@ void printStats(Solver& solver)
     printf("backjumps             : %-12"PRIu64"\n", solver.backjumps);
     printf("decisions             : %-12"PRIu64"   (%4.2f %% random) (%.0f /sec)\n", solver.decisions, (float)solver.rnd_decisions*100 / (float)solver.decisions, solver.decisions   /cpu_time);
     printf("bridge_decisions      : %-12"PRIu64"\n", solver.bridge_decisions);
+    printf("conflicting_clause_vars : %-12"PRIu64"\n", solver.conflicting_clause_vars);
+    printf("bridge_conflicting_clause_vars : %-12"PRIu64"\n", solver.bridge_conflicting_clause_vars);
     printf("learnt_clause_vars    : %-12"PRIu64"\n", solver.learnt_clause_vars);
     printf("bridge_learnt_clause_vars : %-12"PRIu64"\n", solver.bridge_learnt_clause_vars);
     printf("cag_vars              : %-12"PRIu64"\n", solver.cag_vars);
