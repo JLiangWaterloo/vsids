@@ -8,6 +8,8 @@ Remaining code available in https://bitbucket.org/ezulkosk/sat_scripts
 To print out a the community structure of a dimacs file:
 
 ```bash
+pip install --user NetworkX
+pip install --user python-louvain
 python louvain.py myinstance.cnf > myinstance.cnf.cmty
 ```
 
